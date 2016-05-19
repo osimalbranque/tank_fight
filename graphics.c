@@ -17,8 +17,12 @@ const char *tilenames[]={
   "data/wood.bmp",
   "data/wood2.bmp",
   "data/river.bmp",
-  "data/player1.bmp",
-  "data/player3.bmp"
+  "data/team1_small.bmp",
+  "data/team1_medium.bmp",
+  "data/team1_big.bmp",
+  "data/team2_small.bmp",
+  "data/team2_medium.bmp",
+  "data/team2_big.bmp"
 };
 
 /* Lit un pixel d'une carte. A utiliser dans loadMap.
@@ -138,6 +142,23 @@ map_t *loadMap(char *filename) {
   return m;
 }
 
+Tank_Player *loadTankPlayers() {
+	
+	Tank_Player *tk_p;
+	
+	tk_p = malloc(sizeof(Tank_Player));
+	tk_p->team = TEAM1;
+	tk_p->kind = MEDIUM;
+	tk_p->row = 1;
+	tk_p->col = 3;
+	tk_p->lifepoints = 100*(tk_p->kind+1);
+	
+	return tk_p;
+	
+}
+
+/*-------------------------------- RENDERING -------------------------------- */
+
 /* Initialisation de la bibliotheque SDL, ouverture d'une fenetre de taille 
    w*SIZE x h*SIZE
  */
@@ -159,14 +180,25 @@ SDL_Renderer *openWindow(int w,int h) {
 /* Redessine la carte, les joueurs, les effets, ... 
    A REMPLIR
 */
-void paint(SDL_Renderer *s,map_t *m) {
+void paint(SDL_Renderer *s, map_t *m, Tank_Player *tk_p) {
 	
-   int i, j;
   /* Fait un ecran noir */
   SDL_RenderClear(s);
   /* Definir ici le contenu graphique de la fenetre.
      A REMPLIR
    */
+   
+   paint_map(s, m);
+   paint_tank(s, tk_p);
+   
+
+  /* Affiche le tout  */
+  SDL_RenderPresent(s);
+}
+
+void paint_map(SDL_Renderer *s, map_t *m) {
+
+   int i, j;
    SDL_Rect rect;
    rect.w = rect.h = SIZE;
    rect.x = 0;
@@ -179,22 +211,40 @@ void paint(SDL_Renderer *s,map_t *m) {
 		   rect.x = j*SIZE;
 		   rect.y = i*SIZE;
 		   
-		   SDL_RenderCopy(s, tile[ROAD], NULL, &rect);		   
+		   SDL_RenderCopy(s, tile[ROAD], NULL, &rect); // Hides black background   
 		   SDL_RenderCopy(s, tile[m->tiles[i*m->width + j].object_kind], NULL, &rect);
 		   
 	   }
 	   
    }
-
-  /* Affiche le tout  */
-  SDL_RenderPresent(s);
+	
 }
 
+void paint_tank(SDL_Renderer *s, Tank_Player *tk_p) {
+	
+   SDL_Rect rect;
+   ObjectKind o_k;
+   
+   o_k = ALL-RIVER-1 + (tk_p->team+1)*(tk_p->kind+1);
+   rect.w = rect.h = SIZE;
+   rect.x = SIZE*tk_p->col;
+   rect.y = SIZE*tk_p->row;
+   
+   SDL_RenderCopy(s, tile[o_k], NULL, &rect);
+	
+}
+
+/*-------------------------------- RESOURCES DELLOCATION -------------------------------- */
+
 void releaseMap(map_t *m) {
-	
-	int i = 0;
-	
+
 	free(m->tiles);
 	free(m);
+	
+}
+
+void releaseTank(Tank_Player *tk_p) {
+	
+	free(tk_p);
 	
 }

@@ -7,8 +7,12 @@ typedef enum
     WOOD,
     WOOD2,
     RIVER,
-    PLAYER1,
-    PLAYER2,
+    TEAM1_SMALL,
+    TEAM1_MEDIUM,
+    TEAM1_BIG,
+    TEAM2_SMALL,
+    TEAM2_MEDIUM,
+    TEAM2_BIG,
     ALL
 } ObjectKind;
 
@@ -32,14 +36,36 @@ typedef struct {
    CollisionSettings collision_settings;
 } Tile;
 
-
-void init_tile(Tile* t);
-
 typedef struct {
    Tile *tiles;
    int width;
    int height;
 } map_t;
 
+typedef enum {
+	
+	SMALL=0,
+	MEDIUM,
+	BIG
+	
+} TankKind;
+
+typedef enum {
+	TEAM1=0,
+	TEAM2
+} TankTeam;
+
+typedef struct {
+	
+	TankTeam team;
+	TankKind kind;
+	int row;
+	int col;
+	int lifepoints;
+	
+} Tank_Player;
+
 int getEvent(map_t *m);
 void update(map_t *m);
+
+void init_tile(Tile* t);
