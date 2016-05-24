@@ -1,0 +1,81 @@
+# depslib dependency file v1.0
+1463925190 source:/home/osiris/Projects/ENSEIRB/tank/core/engine.c
+	<stdio.h>
+	<stdlib.h>
+	<SDL2/SDL.h>
+	"timer.h"
+	"engine.h"
+	"tank_player.h"
+
+1463924545 /home/osiris/Projects/ENSEIRB/tank/core/engine.h
+	"tank_player.h"
+
+1463916765 /home/osiris/Projects/ENSEIRB/tank/core/tank_player.h
+
+1463918074 source:/home/osiris/Projects/ENSEIRB/tank/core/timer.c
+	<SDL2/SDL.h>
+	"timer.h"
+
+1463923624 source:/home/osiris/Projects/ENSEIRB/tank/tank.c
+	<stdio.h>
+	<stdlib.h>
+	<SDL2/SDL.h>
+	"core/tank_player.h"
+	"core/engine.h"
+	"view/graphics.h"
+	"core/timer.h"
+
+1463914008 /home/osiris/Projects/ENSEIRB/tank/view/graphics.h
+	<SDL2/SDL.h>
+
+1463916799 /home/osiris/Projects/ENSEIRB/tank/core/timer.h
+
+1463924658 source:/home/osiris/Projects/ENSEIRB/tank/view/graphics.c
+	<stdio.h>
+	<stdlib.h>
+	<SDL2/SDL.h>
+	<math.h>
+	"../core/engine.h"
+	"graphics.h"
+	"../core/timer.h"
+
+1464122591 source:/home/osiris/Projects/tank_fight/core/engine.c
+	<stdio.h>
+	<stdlib.h>
+	<SDL2/SDL.h>
+	"timer.h"
+	"engine.h"
+	"tank_player.h"
+
+1464122591 /home/osiris/Projects/tank_fight/core/timer.h
+
+1464122591 /home/osiris/Projects/tank_fight/core/engine.h
+	"tank_player.h"
+
+1464122591 /home/osiris/Projects/tank_fight/core/tank_player.h
+
+1464122591 source:/home/osiris/Projects/tank_fight/core/timer.c
+	<SDL2/SDL.h>
+	"timer.h"
+
+1464122591 source:/home/osiris/Projects/tank_fight/tank.c
+	<stdio.h>
+	<stdlib.h>
+	<SDL2/SDL.h>
+	"core/tank_player.h"
+	"core/engine.h"
+	"view/graphics.h"
+	"core/timer.h"
+
+1464122591 /home/osiris/Projects/tank_fight/view/graphics.h
+	<SDL2/SDL.h>
+
+1464122591 source:/home/osiris/Projects/tank_fight/view/graphics.c
+	<stdio.h>
+	<stdlib.h>
+	<SDL2/SDL.h>
+	<math.h>
+	"../core/engine.h"
+	"graphics.h"
+	"../core/timer.h"
+

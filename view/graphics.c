@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <SDL.h>
-#include "engine.h"
+#include <SDL2/SDL.h>
+#include <math.h>
+#include "../core/engine.h"
 #include "graphics.h"
-#include "timer.h"
+#include "../core/timer.h"
 /* Toutes les tuiles du jeu */
 SDL_Texture *tile[ALL];
-/* Le nom de leur fichier. 
-   Doit etre avec le meme ordre que l'enum dans le .h 
+/* Le nom de leur fichier.
+   Doit etre avec le meme ordre que l'enum dans le .h
 */
 const char *tilenames[]={
   "data/grass.bmp",
@@ -17,9 +18,15 @@ const char *tilenames[]={
   "data/wood.bmp",
   "data/wood2.bmp",
   "data/river.bmp",
-  "data/player1.bmp",
-  "data/player3.bmp"
+  "data/team1_small.bmp",
+  "data/team1_medium.bmp",
+  "data/team1_big.bmp",
+  "data/team2_small.bmp",
+  "data/team2_medium.bmp",
+  "data/team2_big.bmp"
 };
+
+/*-------------------------------- OPERATIONS ON PIXELS -------------------------------- */
 
 /* Lit un pixel d'une carte. A utiliser dans loadMap.
    Retourne la couleur RGB du pixel aux coordonnées x,y.
@@ -37,7 +44,7 @@ int getpixel(SDL_Surface *surface, int x, int y) {
     else pixel= p[0] | p[1] << 8 | p[2] << 16;
     break;
   case 4: pixel= *(Uint32 *)p; break;
-  default: pixel= 0;   
+  default: pixel= 0;
   }
   SDL_GetRGB(pixel, surface->format, &r, &g, &b);
   r=r>>4;
@@ -45,6 +52,10 @@ int getpixel(SDL_Surface *surface, int x, int y) {
   b=b>>4;
   return (r<<8)+(g<<4)+b;
 }
+
+
+/*-------------------------------- RESOURCES LOADING -------------------------------- */
+
 /* Charge toutes les tuiles du jeu */
 void loadTiles(SDL_Renderer *s) {
   int i;
@@ -52,14 +63,15 @@ void loadTiles(SDL_Renderer *s) {
   for (i=0; i<ALL; i++)  {
     SDL_Surface *loadedImage=SDL_LoadBMP(tilenames[i]);
     if (loadedImage !=NULL) {
-      Uint32 colorkey = SDL_MapRGB(loadedImage->format,0,0,0);
+      Uint32 colorkey = SDL_MapRGB(loadedImage->format,0xff,0xff,0xff);
       SDL_SetColorKey(loadedImage,SDL_TRUE,colorkey);
       tile[i]=SDL_CreateTextureFromSurface(s, loadedImage );
       SDL_FreeSurface(loadedImage);
     } else fprintf(stderr,"Missing file %s:%s\n",tilenames[i],SDL_GetError());
   }
 }
-/* Lecture d'une mini carte, comme MAP 
+
+/* Lecture d'une mini carte, comme MAP
    A REMPLIR
 */
 map_t *loadMap(char *filename) {
@@ -76,25 +88,32 @@ map_t *loadMap(char *filename) {
   for (i = 0; i < s->h; i++) {
 
 	for (j = 0; j < s->w; j++) {
+
 		pixel_color = getpixel(s, i, j);
+		m->tiles[i*s->w + j].row = i;
+        m->tiles[i*s->w + j].col = j;
+
 		switch (pixel_color) {
-			case 0xff0000: // Red
-				m->tiles[i*s->w + j].object_kind = -2;
-			
+			case 0xf00: // Red
+				m->tiles[i*s->w + j].object_kind = WOOD2;
+
+				m->tiles[i*s->w + j].collision_settings.no_crossable = 1;
+				m->tiles[i*s->w + j].collision_settings.stop_shoots = 1;
+				m->tiles[i*s->w + j].collision_settings.is_destroyable = 1;
+				m->tiles[i*s->w + j].collision_settings.no_crossable_light = 1;
+
+			break;
+
+			case 0x000: // Black
+				m->tiles[i*s->w + j].object_kind = HARDH;
+
 				m->tiles[i*s->w + j].collision_settings.no_crossable = 1;
 				m->tiles[i*s->w + j].collision_settings.stop_shoots = 1;
 				m->tiles[i*s->w + j].collision_settings.is_destroyable = 1;
 				m->tiles[i*s->w + j].collision_settings.no_crossable_light = 1;
 			break;
 
-			case 0x000000: // Black
-				//m->tiles[i*s->w + j].collision_settings.no_crossable = 1;
-				//m->tiles[i*s->w + j].collision_settings.stop_shoots = 1;
-				//m->tiles[i*s->w + j].collision_settings.is_destroyable = 1;
-				//m->tiles[i*s->w + j].collision_settings.no_crossable_light = 1;
-			break;
-
-			case 0xFFFFFF: // White
+			case 0xFFF: // White
 				m->tiles[i*s->w + j].object_kind = ROAD;
 
 				m->tiles[i*s->w + j].collision_settings.no_crossable = 0;
@@ -103,7 +122,7 @@ map_t *loadMap(char *filename) {
 				m->tiles[i*s->w + j].collision_settings.no_crossable_light = 0;
 			break;
 
-			case 0x0000FF: // Blue
+			case 0x00F: // Blue
 				m->tiles[i*s->w + j].object_kind = RIVER;
 
 				m->tiles[i*s->w + j].collision_settings.no_crossable = 1;
@@ -112,7 +131,7 @@ map_t *loadMap(char *filename) {
 				m->tiles[i*s->w + j].collision_settings.no_crossable_light = 1;
 			break;
 
-			case 0x00FF00: // Green
+			case 0x0F0: // Green
 				m->tiles[i*s->w + j].object_kind = WOOD;
 
 				m->tiles[i*s->w + j].collision_settings.no_crossable = 0;
@@ -122,7 +141,7 @@ map_t *loadMap(char *filename) {
 			break;
 
 			default: // No color
-				m->tiles[i*s->w + j].object_kind = -1;
+				m->tiles[i*s->w + j].object_kind = ROAD;
 
 				m->tiles[i*s->w + j].collision_settings.no_crossable = 0;
 				m->tiles[i*s->w + j].collision_settings.stop_shoots = 1;
@@ -136,7 +155,30 @@ map_t *loadMap(char *filename) {
   return m;
 }
 
-/* Initialisation de la bibliotheque SDL, ouverture d'une fenetre de taille 
+Tank_Player *loadTankPlayers() {
+
+	Tank_Player *tk_p;
+
+	tk_p = malloc(sizeof(Tank_Player));
+	tk_p->team = TEAM1;
+	tk_p->kind = MEDIUM;
+	tk_p->move_frequency = SMALL*(tk_p->kind+1); // 10 for small, 20 for medium, 30 for big...
+
+	tk_p->row = 1;
+	tk_p->col = 3;
+
+	tk_p->x = SIZE*tk_p->col;
+	tk_p->y = SIZE*tk_p->row;
+
+	tk_p->lifepoints = 100*(tk_p->kind+1);
+
+	return tk_p;
+
+}
+
+/*-------------------------------- RENDERING -------------------------------- */
+
+/* Initialisation de la bibliotheque SDL, ouverture d'une fenetre de taille
    w*SIZE x h*SIZE
  */
 SDL_Renderer *openWindow(int w,int h) {
@@ -154,44 +196,77 @@ SDL_Renderer *openWindow(int w,int h) {
   SDL_RenderSetLogicalSize(sdlRenderer, w, h);
   return sdlRenderer;
 }
-/* Redessine la carte, les joueurs, les effets, ... 
+
+/* Redessine la carte, les joueurs, les effets, ...
    A REMPLIR
 */
-void paint(SDL_Renderer *s,map_t *m) {
-	
-   int i, j;
+void paint(SDL_Renderer *s, map_t *m, Tank_Player *tk_p) {
+
   /* Fait un ecran noir */
   SDL_RenderClear(s);
   /* Definir ici le contenu graphique de la fenetre.
      A REMPLIR
    */
-   SDL_Rect rect;
-   rect.w = rect.h = SIZE;
-   rect.x = 0;
-   rect.y = 0;
-   
-   SDL_RenderCopy(s, tile[WOOD], NULL, &rect);
-   
-   /*for(i = 0; i < m->height; i++) {
-	   
-	   for (j = 0; j < m->width; j++) {
-		   
-	   }
-	   
-   }*/
+
+   paint_map(s, m);
+   paint_tank(s, tk_p);
+
+   //printf("Object kind : %s", tilenames[m->tiles[(tk_p->row+1) * m->width + tk_p->col+1].object_kind]);
+
 
   /* Affiche le tout  */
   SDL_RenderPresent(s);
 }
 
+void paint_map(SDL_Renderer *s, map_t *m) {
+
+   int i, j;
+   SDL_Rect rect;
+   rect.w = rect.h = SIZE;
+   rect.x = 0;
+   rect.y = 0;
+
+   for(i = 0; i < m->height; i++) {
+
+	   for (j = 0; j < m->width; j++) {
+
+		   rect.x = j*SIZE;
+		   rect.y = i*SIZE;
+
+		   SDL_RenderCopy(s, tile[ROAD], NULL, &rect); // Hides black background
+		   SDL_RenderCopy(s, tile[m->tiles[i*m->width + j].object_kind], NULL, &rect);
+
+	   }
+
+   }
+
+}
+
+void paint_tank(SDL_Renderer *s, Tank_Player *tk_p) {
+
+   SDL_Rect rect;
+   ObjectKind o_k;
+
+   o_k = ALL-RIVER-1 + (tk_p->team+1)*(tk_p->kind+1);
+   rect.w = rect.h = SIZE;
+   rect.x = tk_p->x;
+   rect.y = tk_p->y;
+
+   SDL_RenderCopy(s, tile[o_k], NULL, &rect);
+
+}
+
+/*-------------------------------- RESOURCES DELLOCATION -------------------------------- */
+
 void releaseMap(map_t *m) {
-	
-	int i = 0;
-	
-	for(i = 0; i < m->width * m->height; i++) {
-		free(m.tiles[i]);
-	}
-	
+
+	free(m->tiles);
 	free(m);
-	
+
+}
+
+void releaseTank(Tank_Player *tk_p) {
+
+	free(tk_p);
+
 }

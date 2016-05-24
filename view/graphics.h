@@ -1,4 +1,9 @@
+#ifndef GRAPHICS_H_INCLUDED
+#define GRAPHICS_H_INCLUDED
+
 #define SIZE 32
+
+#include <SDL2/SDL.h>
 
 void loadTiles(SDL_Renderer *s);
 
@@ -13,3 +18,6 @@ void paint_tank(SDL_Renderer *s, Tank_Player *tk_p);
 
 void releaseMap(map_t *m);
 void releaseTank(Tank_Player *tk_p);
+
+
+#endif // GRAPHICS_H_INCLUDED
