@@ -3,6 +3,8 @@
 
 #include "tank_player.h"
 
+#define ANGLE_STEP 10
+
 typedef enum
 {
     ROAD=0,
@@ -51,11 +53,13 @@ typedef struct {
 
 int getEvent(map_t *m, Tank_Player *tk_p);
 void update(map_t *m);
-void update_tank(map_t *m, Tank_Player *tk_p, int move);
+void update_tank(map_t *m, Tank_Player *tk_p, int previous_move, int move);
+void rotate_tank(Tank_Player *tk_p, double angle_delta);
 
 void init_tile(Tile* t);
 
-Tile* adjacent_tile(map_t *m, int x, int y, int move);
+Tile* adjacent_tile(map_t *m, Tank_Player *tk_p, int move);
 int tile_collision(Tile* t, Tank_Player *tk_p);
+void make_move(Tank_Player* tk_p, int previous_move, int move);
 
 #endif // ENGINE_H_INCLUDED

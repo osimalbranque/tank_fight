@@ -11,9 +11,9 @@ typedef enum {
 
 typedef enum {
 
-    SLOW=10,
-    AVERAGE=20,
-    FAST=30
+    SLOW=5,
+    AVERAGE=10,
+    FAST=20
 
 } TankSpeed;
 
@@ -35,6 +35,8 @@ typedef struct {
 	unsigned int y;
 
 	int lifepoints;
+
+	double orientation;
 
 } Tank_Player;
 

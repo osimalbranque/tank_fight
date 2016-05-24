@@ -172,6 +172,8 @@ Tank_Player *loadTankPlayers() {
 
 	tk_p->lifepoints = 100*(tk_p->kind+1);
 
+	tk_p->orientation = 0;
+
 	return tk_p;
 
 }
@@ -252,7 +254,9 @@ void paint_tank(SDL_Renderer *s, Tank_Player *tk_p) {
    rect.x = tk_p->x;
    rect.y = tk_p->y;
 
-   SDL_RenderCopy(s, tile[o_k], NULL, &rect);
+   SDL_Point center = {SIZE/2, SIZE/2};
+
+   SDL_RenderCopyEx(s, tile[o_k], NULL, &rect, tk_p->orientation, &center, SDL_FLIP_NONE);
 
 }
 
