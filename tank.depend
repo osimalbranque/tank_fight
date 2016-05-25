@@ -119,3 +119,57 @@
 	"graphics.h"
 	"../core/timer.h"
 
+1464158891 source:/net/malt/r/osimalbranque/Documents/C/Projet/tank_fight/core/engine.c
+	<stdio.h>
+	<stdlib.h>
+	<SDL2/SDL.h>
+	"timer.h"
+	"engine.h"
+	"tank_player.h"
+
+1464158891 /net/malt/r/osimalbranque/Documents/C/Projet/tank_fight/core/timer.h
+
+1464158891 /net/malt/r/osimalbranque/Documents/C/Projet/tank_fight/core/engine.h
+	"tank_player.h"
+
+1464158891 /net/malt/r/osimalbranque/Documents/C/Projet/tank_fight/core/tank_player.h
+
+1464158891 source:/net/malt/r/osimalbranque/Documents/C/Projet/tank_fight/core/timer.c
+	<SDL2/SDL.h>
+	"timer.h"
+
+1464158891 source:/net/malt/r/osimalbranque/Documents/C/Projet/tank_fight/tank.c
+	<stdio.h>
+	<stdlib.h>
+	<SDL2/SDL.h>
+	"core/tank_player.h"
+	"core/engine.h"
+	"view/graphics.h"
+	"core/timer.h"
+
+1464169026 /net/malt/r/osimalbranque/Documents/C/Projet/tank_fight/view/graphics.h
+	<SDL2/SDL.h>
+
+1464159182 source:/net/malt/r/osimalbranque/Documents/C/Projet/tank_fight/view/graphics.c
+	<stdio.h>
+	<stdlib.h>
+	<SDL2/SDL.h>
+	<math.h>
+	"../core/engine.h"
+	"graphics.h"
+	"../core/timer.h"
+
+1464164421 source:/net/malt/r/osimalbranque/Documents/C/Projet/tank_fight/core/network/client.c
+	<stdio.h>
+	<stdlib.h>
+	<errno.h>
+	<string.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<netdb.h>
+	<unistd.h>
+	"client.h"
+
+1464162264 /net/malt/r/osimalbranque/Documents/C/Projet/tank_fight/core/network/client.h
+

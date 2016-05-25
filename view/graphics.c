@@ -94,26 +94,8 @@ map_t *loadMap(char *filename) {
         m->tiles[i*s->w + j].col = j;
 
 		switch (pixel_color) {
-			case 0xf00: // Red
-				m->tiles[i*s->w + j].object_kind = WOOD2;
 
-				m->tiles[i*s->w + j].collision_settings.no_crossable = 1;
-				m->tiles[i*s->w + j].collision_settings.stop_shoots = 1;
-				m->tiles[i*s->w + j].collision_settings.is_destroyable = 1;
-				m->tiles[i*s->w + j].collision_settings.no_crossable_light = 1;
-
-			break;
-
-			case 0x000: // Black
-				m->tiles[i*s->w + j].object_kind = HARDH;
-
-				m->tiles[i*s->w + j].collision_settings.no_crossable = 1;
-				m->tiles[i*s->w + j].collision_settings.stop_shoots = 1;
-				m->tiles[i*s->w + j].collision_settings.is_destroyable = 1;
-				m->tiles[i*s->w + j].collision_settings.no_crossable_light = 1;
-			break;
-
-			case 0xFFF: // White
+            case 0xFFF: // White
 				m->tiles[i*s->w + j].object_kind = ROAD;
 
 				m->tiles[i*s->w + j].collision_settings.no_crossable = 0;
@@ -129,6 +111,25 @@ map_t *loadMap(char *filename) {
 				m->tiles[i*s->w + j].collision_settings.stop_shoots = 0;
 				m->tiles[i*s->w + j].collision_settings.is_destroyable = 0;
 				m->tiles[i*s->w + j].collision_settings.no_crossable_light = 1;
+			break;
+
+			case 0x000: // Black
+				m->tiles[i*s->w + j].object_kind = HARDH;
+
+				m->tiles[i*s->w + j].collision_settings.no_crossable = 1;
+				m->tiles[i*s->w + j].collision_settings.stop_shoots = 1;
+				m->tiles[i*s->w + j].collision_settings.is_destroyable = 1;
+				m->tiles[i*s->w + j].collision_settings.no_crossable_light = 1;
+			break;
+
+			case 0xf00: // Red
+				m->tiles[i*s->w + j].object_kind = SOFTH;
+
+				m->tiles[i*s->w + j].collision_settings.no_crossable = 1;
+				m->tiles[i*s->w + j].collision_settings.stop_shoots = 1;
+				m->tiles[i*s->w + j].collision_settings.is_destroyable = 1;
+				m->tiles[i*s->w + j].collision_settings.no_crossable_light = 1;
+
 			break;
 
 			case 0x0F0: // Green
@@ -161,7 +162,7 @@ Tank_Player *loadTankPlayers() {
 
 	tk_p = malloc(sizeof(Tank_Player));
 	tk_p->team = TEAM1;
-	tk_p->kind = MEDIUM;
+	tk_p->kind = SMALL;
 	tk_p->move_frequency = SMALL*(tk_p->kind+1); // 10 for small, 20 for medium, 30 for big...
 
 	tk_p->row = 1;
@@ -210,8 +211,8 @@ void paint(SDL_Renderer *s, map_t *m, Tank_Player *tk_p) {
      A REMPLIR
    */
 
-   paint_map(s, m);
-   paint_tank(s, tk_p);
+   paint_map(s, m, tk_p);
+   paint_tank(s, m, tk_p);
 
    //printf("Object kind : %s", tilenames[m->tiles[(tk_p->row+1) * m->width + tk_p->col+1].object_kind]);
 
@@ -220,7 +221,7 @@ void paint(SDL_Renderer *s, map_t *m, Tank_Player *tk_p) {
   SDL_RenderPresent(s);
 }
 
-void paint_map(SDL_Renderer *s, map_t *m) {
+void paint_map(SDL_Renderer *s, map_t *m, Tank_Player *tk_p) {
 
    int i, j;
    SDL_Rect rect;
@@ -236,7 +237,10 @@ void paint_map(SDL_Renderer *s, map_t *m) {
 		   rect.y = i*SIZE;
 
 		   SDL_RenderCopy(s, tile[ROAD], NULL, &rect); // Hides black background
-		   SDL_RenderCopy(s, tile[m->tiles[i*m->width + j].object_kind], NULL, &rect);
+
+
+           //if (m->tiles[i*m->width + j].object_kind != WOOD && m->tiles[i*m->width + j].object_kind != WOOD2)
+                SDL_RenderCopy(s, tile[m->tiles[i*m->width + j].object_kind], NULL, &rect);
 
 	   }
 
@@ -244,7 +248,7 @@ void paint_map(SDL_Renderer *s, map_t *m) {
 
 }
 
-void paint_tank(SDL_Renderer *s, Tank_Player *tk_p) {
+void paint_tank(SDL_Renderer *s, map_t *m, Tank_Player *tk_p) {
 
    SDL_Rect rect;
    ObjectKind o_k;
@@ -257,6 +261,9 @@ void paint_tank(SDL_Renderer *s, Tank_Player *tk_p) {
    SDL_Point center = {SIZE/2, SIZE/2};
 
    SDL_RenderCopyEx(s, tile[o_k], NULL, &rect, tk_p->orientation, &center, SDL_FLIP_NONE);
+
+   if (m->tiles[tk_p->row*m->width + tk_p->col].object_kind == WOOD || m->tiles[tk_p->row*m->width + tk_p->col].object_kind == WOOD2)
+        SDL_RenderCopy(s, tile[m->tiles[tk_p->row*m->width + tk_p->col].object_kind], NULL, &rect);
 
 }
 
