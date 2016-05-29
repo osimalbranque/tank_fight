@@ -81,9 +81,12 @@ map_t *loadMap(char *filename) {
   SDL_Surface *s=SDL_LoadBMP(filename); // Reads map image
   map_t *m; // The future map
   m = malloc(sizeof(map_t));
-  m->width = s->w;
-  m->height = s->h;
-  m->tiles = malloc(sizeof(Tile) * m->width * m->height);
+
+  m->world_width = s->w;
+  m->world_height = s->h;
+
+  m->tiles = malloc(sizeof(Tile) * m->world_width * m->world_height);
+  m->scroll_window = loadScrollWindow(m);
 
   for (i = 0; i < s->h; i++) {
 
@@ -165,17 +168,29 @@ Tank_Player *loadTankPlayers() {
 	tk_p->kind = SMALL;
 	tk_p->move_frequency = SMALL*(tk_p->kind+1); // 10 for small, 20 for medium, 30 for big...
 
-	tk_p->row = 1;
-	tk_p->col = 3;
-
-	tk_p->x = SIZE*tk_p->col;
-	tk_p->y = SIZE*tk_p->row;
+	tk_p->rel_row = 1;
+	tk_p->rel_col = 3;
 
 	tk_p->lifepoints = 100*(tk_p->kind+1);
 
 	tk_p->orientation = 0;
 
 	return tk_p;
+
+}
+
+ScrollWindow *loadScrollWindow(map_t *m) {
+
+    ScrollWindow *s_w;
+    s_w = malloc(sizeof(ScrollWindow));
+
+    s_w->rel_width = 16;
+    s_w->rel_height = 16;
+
+    s_w->abs_col = m->world_width - s_w->rel_width;
+    s_w->abs_row = m->world_height - s_w->rel_height;
+
+    return s_w;
 
 }
 
@@ -207,29 +222,50 @@ void paint(SDL_Renderer *s, map_t *m, Tank_Player *tk_p) {
 
   /* Fait un ecran noir */
   SDL_RenderClear(s);
-  /* Definir ici le contenu graphique de la fenetre.
-     A REMPLIR
-   */
 
-   paint_map(s, m, tk_p);
+   paint_map(s, m);
    paint_tank(s, m, tk_p);
-
-   //printf("Object kind : %s", tilenames[m->tiles[(tk_p->row+1) * m->width + tk_p->col+1].object_kind]);
 
 
   /* Affiche le tout  */
   SDL_RenderPresent(s);
 }
 
-void paint_map(SDL_Renderer *s, map_t *m, Tank_Player *tk_p) {
+void paint_map(SDL_Renderer *s, map_t *m) {
 
    int i, j;
+   int min_row, max_row, min_col, max_col;
+   int tile_id;
+
+   min_col = m->scroll_window->abs_col;
+   max_col = m->scroll_window->abs_col + m->scroll_window->rel_width;
+
+   min_row = m->scroll_window->abs_row;
+   max_row = m->scroll_window->abs_row + m->scroll_window->rel_height;
+
    SDL_Rect rect;
    rect.w = rect.h = SIZE;
    rect.x = 0;
    rect.y = 0;
 
-   for(i = 0; i < m->height; i++) {
+   for (i = min_row; i < max_row; i++)
+   {
+       for (j = min_col; j < max_col; j++)
+       {
+           rect.x = j*SIZE;
+           rect.y = i*SIZE;
+
+           if (i < 0 || i >= m->world_height || j < 0 || j >= m->world_width)
+            tile_id = ROAD;
+           else
+            tile_id = m->tiles[(m->scroll_window->abs_row+i)*m->world_width + j+m->scroll_window->abs_col].object_kind;
+
+           SDL_RenderCopy(s, tile[ROAD], NULL, &rect);
+           SDL_RenderCopy(s, tile[tile_id], NULL, &rect);
+       }
+   }
+
+   /*for(i = 0; i < m->height; i++) {
 
 	   for (j = 0; j < m->width; j++) {
 
@@ -237,14 +273,11 @@ void paint_map(SDL_Renderer *s, map_t *m, Tank_Player *tk_p) {
 		   rect.y = i*SIZE;
 
 		   SDL_RenderCopy(s, tile[ROAD], NULL, &rect); // Hides black background
-
-
-           //if (m->tiles[i*m->width + j].object_kind != WOOD && m->tiles[i*m->width + j].object_kind != WOOD2)
-                SDL_RenderCopy(s, tile[m->tiles[i*m->width + j].object_kind], NULL, &rect);
+           SDL_RenderCopy(s, tile[m->tiles[i*m->width + j].object_kind], NULL, &rect);
 
 	   }
 
-   }
+   }*/
 
 }
 
@@ -255,23 +288,25 @@ void paint_tank(SDL_Renderer *s, map_t *m, Tank_Player *tk_p) {
 
    o_k = ALL-RIVER-1 + (tk_p->team+1)*(tk_p->kind+1);
    rect.w = rect.h = SIZE;
-   rect.x = tk_p->x;
-   rect.y = tk_p->y;
+   rect.x = tk_p->rel_col*SIZE;
+   rect.y = tk_p->rel_row*SIZE;
 
    SDL_Point center = {SIZE/2, SIZE/2};
 
    SDL_RenderCopyEx(s, tile[o_k], NULL, &rect, tk_p->orientation, &center, SDL_FLIP_NONE);
 
-   if (m->tiles[tk_p->row*m->width + tk_p->col].object_kind == WOOD || m->tiles[tk_p->row*m->width + tk_p->col].object_kind == WOOD2)
-        SDL_RenderCopy(s, tile[m->tiles[tk_p->row*m->width + tk_p->col].object_kind], NULL, &rect);
+   if (m->tiles[tk_p->abs_row*m->world_width + tk_p->abs_col].object_kind == WOOD
+       || m->tiles[tk_p->abs_row*m->world_width + tk_p->abs_col].object_kind == WOOD2)
+        SDL_RenderCopy(s, tile[m->tiles[tk_p->abs_row*m->world_width + tk_p->abs_col].object_kind], NULL, &rect);
 
 }
 
-/*-------------------------------- RESOURCES DELLOCATION -------------------------------- */
+/*-------------------------------- RESOURCES DEALLOCATION -------------------------------- */
 
 void releaseMap(map_t *m) {
 
 	free(m->tiles);
+	free(m->scroll_window);
 	free(m);
 
 }

@@ -28,11 +28,8 @@ typedef struct {
 	TankKind kind;
 	TankSpeed move_frequency; // In millis
 
-	int row;
-	int col;
-
-	unsigned int x;
-	unsigned int y;
+	int rel_row;
+	int rel_col;
 
 	int lifepoints;
 

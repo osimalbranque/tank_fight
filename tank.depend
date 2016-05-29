@@ -173,3 +173,43 @@
 
 1464162264 /net/malt/r/osimalbranque/Documents/C/Projet/tank_fight/core/network/client.h
 
+1464540183 source:/home/osiris/Documents/ENSEIRB/S6/C/Projet/tank_fight/core/engine.c
+	<stdio.h>
+	<stdlib.h>
+	<SDL2/SDL.h>
+	"timer.h"
+	"engine.h"
+	"tank_player.h"
+
+1464440421 /home/osiris/Documents/ENSEIRB/S6/C/Projet/tank_fight/core/timer.h
+
+1464539691 /home/osiris/Documents/ENSEIRB/S6/C/Projet/tank_fight/core/engine.h
+	"tank_player.h"
+
+1464532787 /home/osiris/Documents/ENSEIRB/S6/C/Projet/tank_fight/core/tank_player.h
+
+1464440421 source:/home/osiris/Documents/ENSEIRB/S6/C/Projet/tank_fight/core/timer.c
+	<SDL2/SDL.h>
+	"timer.h"
+
+1464533090 source:/home/osiris/Documents/ENSEIRB/S6/C/Projet/tank_fight/tank.c
+	<stdio.h>
+	<stdlib.h>
+	<SDL2/SDL.h>
+	"core/tank_player.h"
+	"core/engine.h"
+	"view/graphics.h"
+	"core/timer.h"
+
+1464540372 /home/osiris/Documents/ENSEIRB/S6/C/Projet/tank_fight/view/graphics.h
+	<SDL2/SDL.h>
+
+1464532314 source:/home/osiris/Documents/ENSEIRB/S6/C/Projet/tank_fight/view/graphics.c
+	<stdio.h>
+	<stdlib.h>
+	<SDL2/SDL.h>
+	<math.h>
+	"../core/engine.h"
+	"graphics.h"
+	"../core/timer.h"
+

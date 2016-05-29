@@ -5,7 +5,7 @@
 #include "core/engine.h"
 #include "view/graphics.h"
 #include "core/timer.h"
-#define MAP "data/map.bmp"
+#define MAP "data/map2.bmp"
 
 int main() {
   map_t *m;
@@ -13,16 +13,16 @@ int main() {
   int finished=0;
 
   m = loadMap(MAP);
-  tk_p = loadTankPlayers();
+  tk_p = loadTankPlayers(m);
 
-  SDL_Renderer *s = openWindow(512, 512);
+  SDL_Renderer *s = openWindow(m->world_width*SIZE, m->world_height*SIZE);
   loadTiles(s);
+
   while (!finished) {
     timerInit();
     finished=getEvent(m, tk_p);
     paint(s,m, tk_p);
-    update(m);
-    //fprintf(stderr,".");
+    fprintf(stderr,".");
     timerWait();
   }
 
