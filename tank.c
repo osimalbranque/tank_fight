@@ -15,12 +15,14 @@ int main() {
   m = loadMap(MAP);
   tk_p = loadTankPlayers(m);
 
-  SDL_Renderer *s = openWindow(m->world_width*SIZE, m->world_height*SIZE);
+  SDL_Renderer *s = openWindow(512, 512);
   loadTiles(s);
 
   while (!finished) {
     timerInit();
+    printf("timer\n");
     finished=getEvent(m, tk_p);
+    printf("event\n");
     paint(s,m, tk_p);
     fprintf(stderr,".");
     timerWait();

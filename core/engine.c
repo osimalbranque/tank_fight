@@ -84,7 +84,7 @@ void update_tank(map_t *m, Tank_Player *tk_p, int move) {
 		break;
 		case SDLK_DOWN:
 		    neighbour_tile = adjacent_tile(m, tk_p, SDLK_DOWN);
-            if (tk_p->rel_row + m->scroll_window->abs_row < m->world_height)
+            if (tk_p->rel_row + m->scroll_window->abs_row < m->world_height-1)
             {
                 if (!neighbour_tile->collision_settings.no_crossable)
                             make_move(m, tk_p, SDLK_DOWN);
@@ -144,43 +144,79 @@ void make_move(map_t *m, Tank_Player* tk_p, int move)
     {
         case SDLK_LEFT:
             //if (next - now > tk_p->move_frequency)
-                tk_p->rel_col--;
 
-                if (tk_p->rel_col < 0) {
-                    tk_p->rel_col = m->scroll_window->rel_width-1;
+                if (m->scroll_window->abs_col > 0) {
                     m->scroll_window->abs_col--;
-
+                     //tk_p->rel_col--;
                 }
+                else {
+
+                    if (tk_p->rel_col > 0)
+                        tk_p->rel_col--;
+                }
+
+                //if (tk_p->rel_col < 0) {
+                    //tk_p->rel_col = m->scroll_window->rel_width-1;
+
+                //}
             //now = next;
         break;
         case SDLK_RIGHT:
             //if (next - now > tk_p->move_frequency)
-                tk_p->rel_col++;
 
-                if (tk_p->rel_col > m->scroll_window->rel_width-1) {
-                    tk_p->rel_col--;
-                    m->scroll_window->abs_col++;
+                if (m->scroll_window->abs_col+m->scroll_window->rel_width <= m->world_width) {
+                     m->scroll_window->abs_col++;
+                     //tk_p->rel_col++;
                 }
+                else {
+                    if (tk_p->rel_col+m->scroll_window->abs_col < m->world_width) {
+                        tk_p->rel_col++;
+                    }
+                }
+
+
+
+                //if (tk_p->rel_col > m->scroll_window->rel_width) {
+
+                  //   tk_p->rel_col--;
+                //}
+
             //now = next;
         break;
         case SDLK_UP:
             //if (next - now > tk_p->move_frequency)
-                tk_p->rel_row--;
-
-                if (tk_p->rel_row < 0) {
-                    tk_p->rel_row = m->scroll_window->rel_height-1;
+                if (m->scroll_window->abs_row > 0) {
                     m->scroll_window->abs_row--;
+                    //tk_p->rel_row--;
                 }
+                else {
+
+                    if (tk_p->rel_row > 0) {
+                        tk_p->rel_row--;
+                    }
+
+                }
+
+                //if (tk_p->rel_row < 0) {
+                  //  tk_p->rel_row = m->scroll_window->rel_height-1;
+                //}
             //now = next;
         break;
         case SDLK_DOWN:
             //if (next - now > tk_p->move_frequency)
-                tk_p->rel_row++;
-
-                if (tk_p->rel_row > m->scroll_window->rel_height-1) {
-                    tk_p->rel_row--;
+                if (m->scroll_window->abs_row+m->scroll_window->rel_height < m->world_height) {
                     m->scroll_window->abs_row++;
+                    //tk_p->rel_row++;
                 }
+                else {
+                    if (tk_p->rel_row+m->scroll_window->abs_row < m->world_height) {
+                        tk_p->rel_row++;
+                    }
+                }
+
+                //if (tk_p->rel_row > m->scroll_window->rel_height) {
+                    //tk_p->rel_row--;
+                //}
             //now = next;
         break;
     }

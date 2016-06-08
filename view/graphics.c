@@ -86,6 +86,7 @@ map_t *loadMap(char *filename) {
   m->world_height = s->h;
 
   m->tiles = malloc(sizeof(Tile) * m->world_width * m->world_height);
+  printf("%d\n", m->world_width);
   m->scroll_window = loadScrollWindow(m);
 
   for (i = 0; i < s->h; i++) {
@@ -187,8 +188,8 @@ ScrollWindow *loadScrollWindow(map_t *m) {
     s_w->rel_width = 16;
     s_w->rel_height = 16;
 
-    s_w->abs_col = m->world_width - s_w->rel_width;
-    s_w->abs_row = m->world_height - s_w->rel_height;
+    s_w->abs_col = 2;
+    s_w->abs_row = 0;
 
     return s_w;
 
@@ -200,10 +201,13 @@ ScrollWindow *loadScrollWindow(map_t *m) {
    w*SIZE x h*SIZE
  */
 SDL_Renderer *openWindow(int w,int h) {
+    printf("debut\n");
   if (SDL_Init(SDL_INIT_VIDEO)<0) {
     fprintf(stderr,"Initialization error:%s\n",SDL_GetError());
+    printf("foin\n");
     exit(1);
   }
+    printf("fin\n");
   atexit(SDL_Quit);
   SDL_Window *sdlWindow;
   SDL_Renderer *sdlRenderer;
@@ -222,6 +226,7 @@ void paint(SDL_Renderer *s, map_t *m, Tank_Player *tk_p) {
 
   /* Fait un ecran noir */
   SDL_RenderClear(s);
+  printf("paint render clear\n");
 
    paint_map(s, m);
    paint_tank(s, m, tk_p);
@@ -252,13 +257,14 @@ void paint_map(SDL_Renderer *s, map_t *m) {
    {
        for (j = min_col; j < max_col; j++)
        {
-           rect.x = j*SIZE;
-           rect.y = i*SIZE;
+           rect.x = (j-min_col)*SIZE;
+           rect.y = (i-min_row)*SIZE;
 
            if (i < 0 || i >= m->world_height || j < 0 || j >= m->world_width)
             tile_id = ROAD;
            else
-            tile_id = m->tiles[(m->scroll_window->abs_row+i)*m->world_width + j+m->scroll_window->abs_col].object_kind;
+            //tile_id = m->tiles[(min_row+i)*m->world_width + j+min_col].object_kind;
+            tile_id = m->tiles[(i)*m->world_width + j].object_kind;
 
            SDL_RenderCopy(s, tile[ROAD], NULL, &rect);
            SDL_RenderCopy(s, tile[tile_id], NULL, &rect);
@@ -295,9 +301,9 @@ void paint_tank(SDL_Renderer *s, map_t *m, Tank_Player *tk_p) {
 
    SDL_RenderCopyEx(s, tile[o_k], NULL, &rect, tk_p->orientation, &center, SDL_FLIP_NONE);
 
-   if (m->tiles[tk_p->abs_row*m->world_width + tk_p->abs_col].object_kind == WOOD
-       || m->tiles[tk_p->abs_row*m->world_width + tk_p->abs_col].object_kind == WOOD2)
-        SDL_RenderCopy(s, tile[m->tiles[tk_p->abs_row*m->world_width + tk_p->abs_col].object_kind], NULL, &rect);
+   if (m->tiles[tk_p->rel_row*m->world_width + tk_p->rel_col].object_kind == WOOD
+       || m->tiles[tk_p->rel_row*m->world_width + tk_p->rel_col].object_kind == WOOD2)
+        SDL_RenderCopy(s, tile[m->tiles[tk_p->rel_row*m->world_width + tk_p->rel_col].object_kind], NULL, &rect);
 
 }
 
