@@ -9,11 +9,11 @@
 
 int main() {
   map_t *m;
-  Tank_Player *tk_p;
+  Tanks *tks;
   int finished=0;
 
   m = loadMap(MAP);
-  tk_p = loadTankPlayers(m);
+  tks = loadTankPlayers(m, 3);
 
   SDL_Renderer *s = openWindow(512, 512);
   loadTiles(s);
@@ -21,15 +21,15 @@ int main() {
   while (!finished) {
     timerInit();
     printf("timer\n");
-    finished=getEvent(m, tk_p);
+    finished=getEvent(m, tks, 0);
     printf("event\n");
-    paint(s,m, tk_p);
+    paint(s,m, tks);
     fprintf(stderr,".");
     timerWait();
   }
 
   releaseMap(m);
-  releaseTank(tk_p);
+  releaseTank(tks);
 
   return 0;
 }

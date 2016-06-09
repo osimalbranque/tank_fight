@@ -62,14 +62,14 @@ typedef struct {
    ScrollWindow *scroll_window;
 } map_t;
 
-int getEvent(map_t *m, Tank_Player *tk_p);
-void update_tank(map_t *m, Tank_Player *tk_p, int move);
+int getEvent(map_t *m, Tanks *tks, int controlled_player);
+void update_tank(map_t *m, Tanks *tks, int controlled_player, int move);
 void rotate_tank(Tank_Player *tk_p, double angle_delta);
 
 void init_tile(Tile* t);
 
-Tile* adjacent_tile(map_t *m, Tank_Player *tk_p, int move);
-int tile_collision(map_t *m, Tile* t, Tank_Player *tk_p);
-void make_move(map_t *m, Tank_Player* tk_p, int move);
+Tile* adjacent_tile(map_t *m, Tanks *tks, int controlled_player, int move);
+int tile_collision(map_t *m, Tile* t, Tanks *tks, int controlled_player);
+void make_move(map_t *m, Tanks *tks, int controlled_player, int move);
 
 #endif // ENGINE_H_INCLUDED

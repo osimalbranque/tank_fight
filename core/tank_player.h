@@ -31,11 +31,21 @@ typedef struct {
 	int rel_row;
 	int rel_col;
 
+	int abs_row;
+	int abs_col;
+
 	int lifepoints;
 
 	double orientation;
 
 } Tank_Player;
+
+typedef struct {
+
+    Tank_Player* *tank_players;
+    int players_nb;
+
+} Tanks;
 
 
 #endif // TANK_PLAYER_H_INCLUDED

@@ -9,7 +9,7 @@
 /* Capture les evenements clavier/fenetre */
 /* Retourne 1 si il faut quitter le jeu, 0 sinon.*/
 /* A REMPLIR */
-int getEvent(map_t *m, Tank_Player *tk_p) {
+int getEvent(map_t *m, Tanks *tks, int controlled_player) {
   SDL_Event event;
   int previous_move;
 
@@ -23,13 +23,13 @@ int getEvent(map_t *m, Tank_Player *tk_p) {
                 previous_move = event.key.keysym.sym;
       switch (event.key.keysym.sym) {
 
-      case SDLK_a: rotate_tank(tk_p, -ANGLE_STEP); break;
-      case SDLK_w: rotate_tank(tk_p, ANGLE_STEP); break;
+      case SDLK_a: rotate_tank(tks->tank_players[controlled_player], -ANGLE_STEP); break;
+      case SDLK_w: rotate_tank(tks->tank_players[controlled_player], ANGLE_STEP); break;
       case SDLK_ESCAPE: printf("escape pressed\n"); return 1;
-      case SDLK_LEFT: update_tank(m, tk_p, SDLK_LEFT); break;
-      case SDLK_RIGHT: update_tank(m, tk_p, SDLK_RIGHT); break;
-      case SDLK_UP: update_tank(m, tk_p, SDLK_UP); break;
-      case SDLK_DOWN: update_tank(m, tk_p, SDLK_DOWN); break;
+      case SDLK_LEFT: update_tank(m, tks, 0, SDLK_LEFT); break;
+      case SDLK_RIGHT: update_tank(m, tks, 0, SDLK_RIGHT); break;
+      case SDLK_UP: update_tank(m, tks, 0, SDLK_UP); break;
+      case SDLK_DOWN: update_tank(m, tks, 0, SDLK_DOWN); break;
       case SDLK_SPACE: printf("space bar pressed\n"); break;
 	/* Par exemple, les touches de direction du clavier. A remplir */
 	/* A REMPLIR */
@@ -48,57 +48,57 @@ void rotate_tank(Tank_Player *tk_p, double angle_delta) {
 
 }
 
-void update_tank(map_t *m, Tank_Player *tk_p, int move) {
+void update_tank(map_t *m, Tanks *tks, int controlled_player, int move) {
 
 	switch(move)
 	{
 	    Tile *neighbour_tile;
 		case SDLK_LEFT:
-		    neighbour_tile = adjacent_tile(m, tk_p, SDLK_LEFT);
-            if (tk_p->rel_col + m->scroll_window->abs_col > 0)
+		    neighbour_tile = adjacent_tile(m, tks, controlled_player, SDLK_LEFT);
+            if (tks->tank_players[controlled_player]->rel_col + m->scroll_window->abs_col > 0)
             {
                     if (!neighbour_tile->collision_settings.no_crossable)
-                            make_move(m, tk_p, SDLK_LEFT);
+                            make_move(m, tks, controlled_player, SDLK_LEFT);
             }
-            //if (tk_p->col > 0 && !m->tiles[tk_p->row*m->width + tk_p->col-1].collision_settings.no_crossable)
+            //if (tks->tank_players[controlled_player]->col > 0 && !m->tiles[tks->tank_players[controlled_player]->row*m->width + tks->tank_players[controlled_player]->col-1].collision_settings.no_crossable)
 		break;
 		case SDLK_RIGHT:
-		    neighbour_tile = adjacent_tile(m, tk_p, SDLK_RIGHT);
-		    if (tk_p->rel_col + m->scroll_window->abs_col < m->world_width)
+		    neighbour_tile = adjacent_tile(m, tks, controlled_player, SDLK_RIGHT);
+		    if (tks->tank_players[controlled_player]->rel_col + m->scroll_window->abs_col < m->world_width)
             {
                 if (!neighbour_tile->collision_settings.no_crossable)
-                        make_move(m, tk_p, SDLK_RIGHT);
+                        make_move(m, tks, controlled_player, SDLK_RIGHT);
             }
-			//if (tk_p->col < m->width-1 && !m->tiles[tk_p->row*m->width + tk_p->col+1].collision_settings.no_crossable)
-					//tk_p->col++;
+			//if (tks->tank_players[controlled_player]->col < m->width-1 && !m->tiles[tks->tank_players[controlled_player]->row*m->width + tks->tank_players[controlled_player]->col+1].collision_settings.no_crossable)
+					//tks->tank_players[controlled_player]->col++;
 		break;
 		case SDLK_UP:
-		    neighbour_tile = adjacent_tile(m, tk_p, SDLK_UP);
-            if (tk_p->rel_row + m->scroll_window->abs_row > 0)
+		    neighbour_tile = adjacent_tile(m, tks, controlled_player, SDLK_UP);
+            if (tks->tank_players[controlled_player]->rel_row + m->scroll_window->abs_row > 0)
             {
                 if (!neighbour_tile->collision_settings.no_crossable)
-                        make_move(m, tk_p, SDLK_UP);
+                        make_move(m, tks, controlled_player, SDLK_UP);
             }
-            //if (tk_p->row > 0 && !m->tiles[(tk_p->row-1)*m->width + tk_p->col].collision_settings.no_crossable)
-				//tk_p->row--;
+            //if (tks->tank_players[controlled_player]->row > 0 && !m->tiles[(tks->tank_players[controlled_player]->row-1)*m->width + tks->tank_players[controlled_player]->col].collision_settings.no_crossable)
+				//tks->tank_players[controlled_player]->row--;
 		break;
 		case SDLK_DOWN:
-		    neighbour_tile = adjacent_tile(m, tk_p, SDLK_DOWN);
-            if (tk_p->rel_row + m->scroll_window->abs_row < m->world_height-1)
+		    neighbour_tile = adjacent_tile(m, tks, controlled_player, SDLK_DOWN);
+            if (tks->tank_players[controlled_player]->rel_row + m->scroll_window->abs_row < m->world_height-1)
             {
                 if (!neighbour_tile->collision_settings.no_crossable)
-                            make_move(m, tk_p, SDLK_DOWN);
+                            make_move(m, tks, controlled_player, SDLK_DOWN);
             }
-            //if (tk_p->row < m->height && !m->tiles[(tk_p->row+1)*m->width + tk_p->col].collision_settings.no_crossable)
-				//tk_p->row++;
+            //if (tks->tank_players[controlled_player]->row < m->height && !m->tiles[(tks->tank_players[controlled_player]->row+1)*m->width + tks->tank_players[controlled_player]->col].collision_settings.no_crossable)
+				//tks->tank_players[controlled_player]->row++;
 		break;
 	}
 }
 
-Tile* adjacent_tile(map_t *m, Tank_Player *tk_p, int move) {
+Tile* adjacent_tile(map_t *m, Tanks *tks, int controlled_player, int move) {
 
-    int row = tk_p->rel_row + m->scroll_window->abs_row;
-    int col = tk_p->rel_col + m->scroll_window->abs_col;
+    int row = tks->tank_players[controlled_player]->rel_row + m->scroll_window->abs_row;
+    int col = tks->tank_players[controlled_player]->rel_col + m->scroll_window->abs_col;
 
     switch(move)
     {
@@ -122,15 +122,15 @@ Tile* adjacent_tile(map_t *m, Tank_Player *tk_p, int move) {
 
 }
 
-int tile_collision(map_t *m, Tile* t, Tank_Player *tk_p) {
+int tile_collision(map_t *m, Tile* t, Tanks *tks, int controlled_player) {
 
-    if((tk_p->rel_col + m->scroll_window->abs_col >= t->col*SIZE + SIZE)      // too much at the right
+    if((tks->tank_players[controlled_player]->rel_col + m->scroll_window->abs_col >= t->col*SIZE + SIZE)      // too much at the right
 
-    || (tk_p->rel_col + m->scroll_window->abs_col + SIZE <= t->col*SIZE) // too much at the left
+    || (tks->tank_players[controlled_player]->rel_col + m->scroll_window->abs_col + SIZE <= t->col*SIZE) // too much at the left
 
-    || (tk_p->rel_row + m->scroll_window->abs_row >= t->row*SIZE + SIZE) // too much at the bottom
+    || (tks->tank_players[controlled_player]->rel_row + m->scroll_window->abs_row >= t->row*SIZE + SIZE) // too much at the bottom
 
-    || (tk_p->rel_col + m->scroll_window->abs_col + SIZE <= t->col*SIZE))  // too much at the top
+    || (tks->tank_players[controlled_player]->rel_col + m->scroll_window->abs_col + SIZE <= t->col*SIZE))  // too much at the top
 
           return 0;
 
@@ -138,21 +138,31 @@ int tile_collision(map_t *m, Tile* t, Tank_Player *tk_p) {
 
 }
 
-void make_move(map_t *m, Tank_Player* tk_p, int move)
+void make_move(map_t *m, Tanks *tks, int controlled_player, int move)
 {
+    int i;
     switch(move)
     {
         case SDLK_LEFT:
-            //if (next - now > tk_p->move_frequency)
+            //if (next - now > tks->tank_players[controlled_player]->move_frequency)
 
-                if (m->scroll_window->abs_col > 0) {
-                    m->scroll_window->abs_col--;
-                     //tk_p->rel_col--;
-                }
-                else {
+                for (i = 0; i < tks->players_nb; i++)
+                {
+                    if (i != controlled_player)
+                        tks->tank_players[i]->rel_col = tks->tank_players[i]->abs_col - m->scroll_window->abs_col;
+                    else
+                    {
+                        if (m->scroll_window->abs_col > 0) {
+                        m->scroll_window->abs_col--;
+                         //tk_p->rel_col--;
+                        }
+                        else {
 
-                    if (tk_p->rel_col > 0)
-                        tk_p->rel_col--;
+                            if (tks->tank_players[controlled_player]->rel_col > 0)
+                                tks->tank_players[controlled_player]->rel_col--;
+                        }
+                    }
+
                 }
 
                 //if (tk_p->rel_col < 0) {
@@ -164,13 +174,21 @@ void make_move(map_t *m, Tank_Player* tk_p, int move)
         case SDLK_RIGHT:
             //if (next - now > tk_p->move_frequency)
 
-                if (m->scroll_window->abs_col+m->scroll_window->rel_width <= m->world_width) {
+                for (i = 0; i < tks->players_nb; i++)
+                {
+                    if (i != controlled_player)
+                        tks->tank_players[i]->rel_col = tks->tank_players[i]->abs_col - m->scroll_window->abs_col;
+                    else
+                    {
+                        if (m->scroll_window->abs_col+m->scroll_window->rel_width <= m->world_width) {
                      m->scroll_window->abs_col++;
                      //tk_p->rel_col++;
-                }
-                else {
-                    if (tk_p->rel_col+m->scroll_window->abs_col < m->world_width) {
-                        tk_p->rel_col++;
+                        }
+                        else {
+                            if (tks->tank_players[controlled_player]->rel_col+m->scroll_window->abs_col < m->world_width) {
+                                tks->tank_players[controlled_player]->rel_col++;
+                            }
+                        }
                     }
                 }
 
@@ -184,18 +202,28 @@ void make_move(map_t *m, Tank_Player* tk_p, int move)
             //now = next;
         break;
         case SDLK_UP:
-            //if (next - now > tk_p->move_frequency)
-                if (m->scroll_window->abs_row > 0) {
-                    m->scroll_window->abs_row--;
-                    //tk_p->rel_row--;
-                }
-                else {
 
-                    if (tk_p->rel_row > 0) {
-                        tk_p->rel_row--;
+            for (i = 0; i < tks->players_nb; i++)
+                {
+                    if (i != controlled_player)
+                        tks->tank_players[i]->rel_col = tks->tank_players[i]->abs_col - m->scroll_window->abs_col;
+                    else
+                    {
+                        if (m->scroll_window->abs_row > 0) {
+                        m->scroll_window->abs_row--;
+                        //tk_p->rel_row--;
+                        }
+                    else {
+
+                        if (tks->tank_players[controlled_player]->rel_row > 0) {
+                            tks->tank_players[controlled_player]->rel_row--;
+                        }
+
+                    }
                     }
 
                 }
+            //if (next - now > tk_p->move_frequency)
 
                 //if (tk_p->rel_row < 0) {
                   //  tk_p->rel_row = m->scroll_window->rel_height-1;
@@ -203,16 +231,24 @@ void make_move(map_t *m, Tank_Player* tk_p, int move)
             //now = next;
         break;
         case SDLK_DOWN:
-            //if (next - now > tk_p->move_frequency)
-                if (m->scroll_window->abs_row+m->scroll_window->rel_height < m->world_height) {
+        for (i = 0; i < tks->players_nb; i++)
+        {
+                    if (i != controlled_player)
+                        tks->tank_players[i]->rel_col = tks->tank_players[i]->abs_col - m->scroll_window->abs_col;
+                    else
+                    {
+                        if (m->scroll_window->abs_row+m->scroll_window->rel_height < m->world_height) {
                     m->scroll_window->abs_row++;
                     //tk_p->rel_row++;
-                }
-                else {
-                    if (tk_p->rel_row+m->scroll_window->abs_row < m->world_height) {
-                        tk_p->rel_row++;
                     }
-                }
+                    else {
+                        if (tks->tank_players[controlled_player]->rel_row+m->scroll_window->abs_row < m->world_height) {
+                            tks->tank_players[controlled_player]->rel_row++;
+                        }
+                    }
+                    }
+        }
+            //if (next - now > tk_p->move_frequency)
 
                 //if (tk_p->rel_row > m->scroll_window->rel_height) {
                     //tk_p->rel_row--;

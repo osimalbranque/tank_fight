@@ -160,23 +160,51 @@ map_t *loadMap(char *filename) {
   return m;
 }
 
-Tank_Player *loadTankPlayers() {
+Tanks *loadTankPlayers(map_t *m, int players_nb) {
 
-	Tank_Player *tk_p;
+	//Tanks *tks = malloc(sizeof(int) + players_nb*sizeof(Tank_Player));
+	Tanks *tks = malloc(sizeof(Tanks));
 
-	tk_p = malloc(sizeof(Tank_Player));
-	tk_p->team = TEAM1;
-	tk_p->kind = SMALL;
-	tk_p->move_frequency = SMALL*(tk_p->kind+1); // 10 for small, 20 for medium, 30 for big...
+    tks->players_nb = players_nb;
+	tks->tank_players = malloc(players_nb*sizeof(Tank_Player*));
 
-	tk_p->rel_row = 1;
-	tk_p->rel_col = 3;
+	tks->tank_players[0] = malloc(sizeof(Tank_Player));
 
-	tk_p->lifepoints = 100*(tk_p->kind+1);
+	tks->tank_players[0]->team = TEAM1;
+	tks->tank_players[0]->kind = SMALL;
+	tks->tank_players[0]->move_frequency = SMALL*(tks->tank_players[0]->kind+1); // 10 for small, 20 for medium, 30 for big...
+	tks->tank_players[0]->rel_row = 1;
+	tks->tank_players[0]->rel_col = 3;
+	tks->tank_players[0]->abs_col = m->scroll_window->abs_col + tks->tank_players[0]->rel_col;
+	tks->tank_players[0]->abs_row = m->scroll_window->abs_row + tks->tank_players[0]->rel_row;
+	tks->tank_players[0]->lifepoints = 100*(tks->tank_players[0]->kind+1);
+	tks->tank_players[0]->orientation = 0;
 
-	tk_p->orientation = 0;
+    tks->tank_players[1] = malloc(sizeof(Tank_Player));
 
-	return tk_p;
+	tks->tank_players[1]->team = TEAM1;
+	tks->tank_players[1]->kind = SMALL;
+	tks->tank_players[1]->move_frequency = SMALL*(tks->tank_players[1]->kind+1); // 10 for small, 20 for medium, 30 for big...
+	tks->tank_players[1]->abs_col = 11;
+	tks->tank_players[1]->abs_row = 0;
+	tks->tank_players[1]->rel_row = tks->tank_players[1]->abs_row - m->scroll_window->abs_row;
+	tks->tank_players[1]->rel_col = tks->tank_players[1]->abs_col - m->scroll_window->abs_col;
+	tks->tank_players[1]->lifepoints = 100*(tks->tank_players[1]->kind+1);
+	tks->tank_players[1]->orientation = 0;
+
+    tks->tank_players[2] = malloc(sizeof(Tank_Player));
+
+	tks->tank_players[2]->team = TEAM1;
+	tks->tank_players[2]->kind = SMALL;
+	tks->tank_players[2]->move_frequency = SMALL*(tks->tank_players[2]->kind+1); // 10 for small, 20 for medium, 30 for big...
+	tks->tank_players[2]->abs_col = 2;
+	tks->tank_players[2]->abs_row = 0;
+	tks->tank_players[2]->rel_row = tks->tank_players[2]->abs_row - m->scroll_window->abs_row;
+	tks->tank_players[2]->rel_col = tks->tank_players[2]->abs_col - m->scroll_window->abs_col;
+	tks->tank_players[2]->lifepoints = 100*(tks->tank_players[2]->kind+1);
+	tks->tank_players[2]->orientation = 0;
+
+	return tks;
 
 }
 
@@ -222,14 +250,14 @@ SDL_Renderer *openWindow(int w,int h) {
 /* Redessine la carte, les joueurs, les effets, ...
    A REMPLIR
 */
-void paint(SDL_Renderer *s, map_t *m, Tank_Player *tk_p) {
+void paint(SDL_Renderer *s, map_t *m, Tanks *tks) {
 
   /* Fait un ecran noir */
   SDL_RenderClear(s);
   printf("paint render clear\n");
 
    paint_map(s, m);
-   paint_tank(s, m, tk_p);
+   paint_tank(s, m, tks);
 
 
   /* Affiche le tout  */
@@ -287,23 +315,34 @@ void paint_map(SDL_Renderer *s, map_t *m) {
 
 }
 
-void paint_tank(SDL_Renderer *s, map_t *m, Tank_Player *tk_p) {
+void paint_tank(SDL_Renderer *s, map_t *m, Tanks *tks) {
 
    SDL_Rect rect;
    ObjectKind o_k;
+   int i;
 
-   o_k = ALL-RIVER-1 + (tk_p->team+1)*(tk_p->kind+1);
-   rect.w = rect.h = SIZE;
-   rect.x = tk_p->rel_col*SIZE;
-   rect.y = tk_p->rel_row*SIZE;
+   for (i = 0; i < tks->players_nb; i++) {
 
-   SDL_Point center = {SIZE/2, SIZE/2};
+       o_k = ALL-RIVER-1 + (tks->tank_players[i]->team+1)*(tks->tank_players[i]->kind+1);
+       rect.w = rect.h = SIZE;
+       rect.x = tks->tank_players[i]->rel_col*SIZE;
+       rect.y = tks->tank_players[i]->rel_row*SIZE;
 
-   SDL_RenderCopyEx(s, tile[o_k], NULL, &rect, tk_p->orientation, &center, SDL_FLIP_NONE);
+       printf("%d %d\n", tks->tank_players[i]->rel_col, tks->tank_players[i]->rel_row);
 
-   if (m->tiles[tk_p->rel_row*m->world_width + tk_p->rel_col].object_kind == WOOD
-       || m->tiles[tk_p->rel_row*m->world_width + tk_p->rel_col].object_kind == WOOD2)
-        SDL_RenderCopy(s, tile[m->tiles[tk_p->rel_row*m->world_width + tk_p->rel_col].object_kind], NULL, &rect);
+       SDL_Point center = {SIZE/2, SIZE/2};
+
+       if (tks->tank_players[i]->rel_row >= 0 && tks->tank_players[i]->rel_row <= m->scroll_window->rel_height &&
+           tks->tank_players[i]->rel_col >= 0 && tks->tank_players[i]->rel_col <= m->scroll_window->rel_width)
+       {
+            SDL_RenderCopyEx(s, tile[o_k], NULL, &rect, tks->tank_players[i]->orientation, &center, SDL_FLIP_NONE);
+
+       if (m->tiles[tks->tank_players[i]->rel_row*m->world_width + tks->tank_players[i]->rel_col].object_kind == WOOD
+           || m->tiles[tks->tank_players[i]->rel_row*m->world_width + tks->tank_players[i]->rel_col].object_kind == WOOD2)
+            SDL_RenderCopy(s, tile[m->tiles[tks->tank_players[i]->rel_row*m->world_width + tks->tank_players[i]->rel_col].object_kind], NULL, &rect);
+       }
+
+   }
 
 }
 
@@ -317,8 +356,12 @@ void releaseMap(map_t *m) {
 
 }
 
-void releaseTank(Tank_Player *tk_p) {
+void releaseTank(Tanks *tks) {
 
-	free(tk_p);
+    int i = 0;
+    for (i = 0; i < tks->players_nb; i++)
+        free(tks->tank_players[i]);
+
+	free(tks->tank_players);
 
 }

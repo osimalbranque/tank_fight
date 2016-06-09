@@ -9,16 +9,16 @@ void loadTiles(SDL_Renderer *s);
 
 map_t *loadMap(char *filename);
 ScrollWindow *loadScrollWindow(map_t *map);
-Tank_Player *loadTankPlayers();
+Tanks *loadTankPlayers(map_t *m, int players_nb);
 
 SDL_Renderer *openWindow(int w,int h);
 
-void paint(SDL_Renderer *s, map_t *m, Tank_Player *tk_p);
+void paint(SDL_Renderer *s, map_t *m, Tanks *tks);
 void paint_map(SDL_Renderer *s, map_t *m);
-void paint_tank(SDL_Renderer *s, map_t *m, Tank_Player *tk_p);
+void paint_tank(SDL_Renderer *s, map_t *m, Tanks *tks);
 
 void releaseMap(map_t *m);
-void releaseTank(Tank_Player *tk_p);
+void releaseTank(Tanks *tks);
 
 
 #endif // GRAPHICS_H_INCLUDED
